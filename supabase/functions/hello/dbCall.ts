@@ -1,24 +1,18 @@
-type Params = {
-  supabase: any;
-  market?: string;
-  station?: string;
-  country?: string;
-  freq?: string;
-  tableName: string;
-};
-
 export const fetchRecords = async ({
   supabase,
   market,
   station,
   country,
-  freq,
+  frequency,
   tableName,
-}: Params) => {
+}: any) => {
   const prevEntries = await supabase
     .from(tableName)
     .select("*")
-    .limit(2);
-  console.log(prevEntries);
+    .eq("country", country)
+    .eq("market", market)
+    .eq("station", station)
+    .eq("frequency", `\"${frequency}\"`)
+    .limit(5);
   return prevEntries;
 };
