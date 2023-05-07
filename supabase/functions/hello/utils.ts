@@ -13,10 +13,10 @@ export const parseParams = (url: string) => {
 
 export const isDupe = async (
   supabase: any,
-  url: string,
+  params: any,
   requestedSongs: Music[] = []
 ) => {
-  const { country, station, freq, market } = parseParams(url);
+  const { country, station, freq, market } = params;
 
   const fetchParams = {
     supabase,
@@ -29,6 +29,8 @@ export const isDupe = async (
   };
 
   const { data, error } = await fetchRecords(fetchParams);
+  // console.log(data);
+  // console.log(params)
   const matched = requestedSongs.find(({ title, acrid, artists }) => {
     const artistNames = artists.map((artist) => artist.name);
 

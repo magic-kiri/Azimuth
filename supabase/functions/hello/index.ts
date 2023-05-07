@@ -4,7 +4,7 @@ import { serve } from "std/server";
 // import { createClient } from "@supabase/supabase-js";
 import { createClient } from "supabase";
 import { Music, ReqBodyType } from "./types.ts";
-import { fetchRecords } from "./dbCall.ts";
+import { fetchRecords, insertRecords, deleteRecords } from "./dbCall.ts";
 import { parseParams, isDupe } from "./utils.ts";
 
 // Create a single supabase client for interacting with your database
@@ -19,9 +19,30 @@ serve(async (_req) => {
     );
     const method = _req.method;
     const snippet: ReqBodyType = await _req.json();
+    const params = parseParams(_req.url);
+    const music = snippet.metadata?.music;
+    const dupe = await isDupe(supabase, params, music);
 
-    const data = await isDupe(supabase, _req.url, snippet.metadata?.music);
+    const insertionParams = {
+      ...params,
+      supabase,
+      music: music
+        ? music.map((m) => {
+            return { acrid: m.acrid, title: m.title, artists: m.artists };
+          })
+        : [],
+    };
+    // console.log(insertionParams);
 
+    if (dupe) {
+    } else {
+      await deleteRecords(supabase, "device_raw_ACR_metadata_queue");
+    }
+
+    const data = await insertRecords(
+      insertionParams,
+      "device_raw_ACR_metadata_queue"
+    );
     const body = JSON.stringify(data, (_, v) =>
       typeof v === "bigint" ? v.toString() : v
     );
