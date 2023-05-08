@@ -5,7 +5,7 @@ import { serve } from "std/server";
 import { createClient } from "supabase";
 import { Music, ReqBodyType } from "./types.ts";
 import { fetchRecords, insertRecords, deleteRecords } from "./dbCall.ts";
-import { parseParams, isDupe } from "./utils.ts";
+import { parseParams, isDupe, parseArtistNames } from "./utils.ts";
 
 // Create a single supabase client for interacting with your database
 
@@ -21,6 +21,7 @@ serve(async (_req) => {
     const snippet: ReqBodyType = await _req.json();
     const params = parseParams(_req.url);
     const music = snippet.metadata?.music;
+
     const dupe = await isDupe(supabase, params, music);
 
     const insertionParams = {
@@ -28,22 +29,40 @@ serve(async (_req) => {
       supabase,
       music: music
         ? music.map((m) => {
-            return { acrid: m.acrid, title: m.title, artists: m.artists };
+            return {
+              acrid: m.acrid,
+              title: m.title,
+              artists: parseArtistNames(m.artists),
+            };
           })
         : [],
     };
-    // console.log(insertionParams);
+    // console.log({ dupe });
+    if (!dupe) {
+      const data = await insertRecords(
+        insertionParams,
+        "device_raw_airplay_kiriti",
+        true
+      );
 
-    if (dupe) {
-    } else {
-      await deleteRecords(supabase, "device_raw_ACR_metadata_queue");
+      await deleteRecords(supabase, {
+        tableName: "device_raw_ACR_metadata_queue",
+        ...params,
+      });
     }
 
     const data = await insertRecords(
       insertionParams,
       "device_raw_ACR_metadata_queue"
     );
-    const body = JSON.stringify(data, (_, v) =>
+
+    const result = {
+      status: dupe
+        ? "The song is duplicate. Successfully inserted into the queue"
+        : "This is a new song. Inserted into to queue and updated the first entry in the main table ",
+    };
+
+    const body = JSON.stringify(result, (_, v) =>
       typeof v === "bigint" ? v.toString() : v
     );
 

@@ -1,3 +1,9 @@
+export type Artists = {
+  role?: string;
+  roles?: string[];
+  name: string;
+}[];
+
 export type Music = {
   release_date: Date | string;
   artists: any[];

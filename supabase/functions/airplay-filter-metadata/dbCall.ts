@@ -19,8 +19,10 @@ export const fetchRecords = async ({
 
 export const insertRecords = async (
   { supabase, market, station, country, freq, music, timestamp }: any,
-  tableName: string
+  tableName: string,
+  firstElementOnly: boolean = false
 ) => {
+  
   const rows = music.map(({ title, artists, acrid }: any) => {
     return {
       market,
@@ -28,21 +30,42 @@ export const insertRecords = async (
       country,
       timestamp,
       frequency: `\"${freq}\"`,
-      // acrid,
+      acr_id: acrid,
       title,
-      artist: artists.map((artist: any) => artist.name).toString(),
+      artist: artists.toString(),
     };
   });
+  
+  // console.log();
+  // console.log(rows);
 
-  return await supabase.from(tableName).insert(rows).select();
+  return await supabase
+    .from(tableName)
+    .insert(firstElementOnly ? rows[0] : rows)
+    .select();
 };
 
-export const deleteRecords = async (supabase: any, tableName: string) => {
+export const deleteRecords = async (
+  supabase: any,
+  { tableName, market, station, freq, country }: any
+) => {
+  // console.log({
+  //   tableName,
+  //   market,
+  //   station,
+  //   freq,
+  //   country,
+  // });
+
   const { data, error } = await supabase
     .from(tableName)
     .delete()
-    .neq("id", -1)
+    .eq("market", market)
+    .eq("station", station)
+    .eq("country", country)
+    .eq("frequency", `\"${freq}\"`)
     .select();
-  console.log({ data, error });
+  console.log(data);
+  
   return data;
 };
