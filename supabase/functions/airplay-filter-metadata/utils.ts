@@ -21,10 +21,13 @@ export const parseArtistNames = (artists: Artists) => {
       const found = roles.find((role) => role === "MainArtist");
       return !!found;
     }
-    // This line will never occur.
     return false;
   });
-  // console.log(names.map((artist) => artist.name));
+
+  if (names.length === 0) {
+    return artists.map((artist) => artist.name);
+  }
+
   return names.map((artist) => artist.name);
 };
 
@@ -49,17 +52,15 @@ export const isDupe = async (
     market,
   };
 
-  // console.log({ timestamp: new Date(timestamp.slice(1,-1)) });
-
   const { data, error } = await fetchRecords(fetchParams);
   let timeDifference = 0;
 
   const matched = requestedSongs.find(({ title, acrid, artists }) => {
     if (timeDifference > TIME_LIMIT) return false;
     const newDate = new Date(timestamp.slice(1, -1)).getTime();
-    
+
     const artistNames = parseArtistNames(artists);
-    
+
     const found = data.find((prevMusic: any) => {
       const prevDate = new Date(prevMusic.timestamp).getTime();
 

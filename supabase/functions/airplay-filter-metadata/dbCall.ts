@@ -22,7 +22,6 @@ export const insertRecords = async (
   tableName: string,
   firstElementOnly: boolean = false
 ) => {
-  
   const rows = music.map(({ title, artists, acrid }: any) => {
     return {
       market,
@@ -35,7 +34,7 @@ export const insertRecords = async (
       artist: artists.toString(),
     };
   });
-  
+
   // console.log();
   // console.log(rows);
 
@@ -49,14 +48,6 @@ export const deleteRecords = async (
   supabase: any,
   { tableName, market, station, freq, country }: any
 ) => {
-  // console.log({
-  //   tableName,
-  //   market,
-  //   station,
-  //   freq,
-  //   country,
-  // });
-
   const { data, error } = await supabase
     .from(tableName)
     .delete()
@@ -65,7 +56,7 @@ export const deleteRecords = async (
     .eq("country", country)
     .eq("frequency", `\"${freq}\"`)
     .select();
-  console.log(data);
-  
+  // console.log(data);
+
   return data;
 };
