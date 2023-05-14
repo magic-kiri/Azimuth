@@ -12,8 +12,8 @@ export const fetchRecords = async ({
     .eq("country", country)
     .eq("market", market)
     .eq("station", station)
-    .eq("frequency", `\"${frequency}\"`)
-    .limit(5);
+    .eq("frequency", `\"${frequency}\"`);
+  // .limit(5);
   return prevEntries;
 };
 
@@ -34,10 +34,6 @@ export const insertRecords = async (
       artist: artists.toString(),
     };
   });
-
-  // console.log();
-  // console.log(rows);
-
   return await supabase
     .from(tableName)
     .insert(firstElementOnly ? rows[0] : rows)

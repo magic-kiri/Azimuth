@@ -5,7 +5,12 @@ import { serve } from "std/server";
 import { createClient } from "supabase";
 import { Music, ReqBodyType } from "./types.ts";
 import { fetchRecords, insertRecords, deleteRecords } from "./dbCall.ts";
-import { parseParams, isDupe, parseArtistNames } from "./utils.ts";
+import {
+  parseParams,
+  isDupe,
+  parseArtistNames,
+  updateRankList,
+} from "./utils.ts";
 
 // Create a single supabase client for interacting with your database
 
@@ -17,6 +22,7 @@ serve(async (_req) => {
       "https://gtjpquxczkowyjucrmdu.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0anBxdXhjemtvd3lqdWNybWR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzY5ODMwMTcsImV4cCI6MTk5MjU1OTAxN30.CzTrEw6bNJ4rhtUNj9frD7LNEAAD6B7gIWQENdaERxg"
     );
+
     const method = _req.method;
     const snippet: ReqBodyType = await _req.json();
     const params = parseParams(_req.url);
@@ -43,6 +49,14 @@ serve(async (_req) => {
         insertionParams,
         "device_raw_airplay_kiriti",
         true
+      );
+
+      updateRankList(
+        supabase,
+        params.market,
+        params.country,
+        params.timestamp,
+        insertionParams.music[0].artists
       );
 
       await deleteRecords(supabase, {

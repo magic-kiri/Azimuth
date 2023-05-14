@@ -1,5 +1,6 @@
 import { Music, ReqBodyType, Artists } from "./types.ts";
 import { fetchRecords } from "./dbCall.ts";
+import { fetchArtist, updateArtists } from "./database-functions/ranklist.ts";
 
 const TIME_LIMIT = 1000 * 60 * 30;
 
@@ -78,4 +79,28 @@ export const isDupe = async (
     return !!found;
   });
   return !!matched;
+};
+
+export const updateRankList = async (
+  supabase: any,
+  market: string,
+  country: string,
+  timestamp: string,
+  artists: string[]
+) => {
+  const artistMap = await fetchArtist({ supabase, market, country, artists });
+  artists.forEach((artist) => {
+    if (artistMap[artist]) {
+      artistMap[artist].spinCount = artistMap[artist].spinCount + 1;
+    } else {
+      artistMap[artist] = {
+        market,
+        country,
+        artist,
+        spinCount: 1,
+        timestamp: new Date(timestamp.slice(1, -1)),
+      };
+    }
+  });
+  updateArtists(supabase, artistMap);
 };
