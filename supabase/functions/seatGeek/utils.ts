@@ -48,7 +48,7 @@ export async function fetchSeatGeekData(
 ) {
   const generatedUrls = generateUrls(url, startPage, endPage);
   const records: any[] = [];
-
+  // let cnt = 1;
   for (const url of generatedUrls) {
     const response = await fetch(url);
     const data = await response.json();
@@ -63,7 +63,8 @@ export async function fetchSeatGeekData(
       };
       return { ...flattenJSON(rest), ...performer };
     });
-
+    // if (cnt % 100 === 0) console.log("Data fetched: ", cnt);
+    // cnt = cnt + 1;
     records.push(...df);
   }
   const uniqueRecords = dropDuplicate(records);
@@ -74,15 +75,23 @@ export async function insertRecordsToSupabase(
   jsonData: any[],
   supabaseClient: any
 ) {
-  for (const record of jsonData) {
-    try {
-      await supabaseClient.from("seatgeek_data").insert(record);
-    } catch (e) {
-      console.log("Error occurred while inserting the record:");
-      console.log(record);
-      console.log("Error message:", e.message);
-      console.log();
-    }
+  try {
+    const { data } = await supabaseClient.from("seatgeek_data").select();
+    const uniqueIds = new Set<number>();
+    data.forEach((row: any) => {
+      uniqueIds.add(row.id);
+    });
+
+    const records = jsonData.filter((row: any) => {
+      return !uniqueIds.has(row.id);
+    });
+
+    await supabaseClient.from("seatgeek_data").insert(records);
+    console.log("Inseted Data", records.length);
+    return records.length;
+  } catch (e) {
+    console.log("Error occurred while inserting the record:");
+    console.log("Error message:", e.message);
   }
 }
 
@@ -90,22 +99,21 @@ export async function removeDuplicateRows(
   tableName: string,
   supabaseClient: any
 ) {
-  const { data } = await supabaseClient.from(tableName).select("*");
+  const { data } = await supabaseClient.from(tableName).select();
+
   const uniqueIds = new Set<number>();
-  const rowsToDelete: number[] = [];
+  const firstOccurrences: any[] = [];
 
   for (const row of data) {
     const rowId = row.id;
     if (!uniqueIds.has(rowId)) {
       uniqueIds.add(rowId);
-    } else {
-      rowsToDelete.push(rowId);
+      firstOccurrences.push(row);
     }
   }
 
-  for (const rowId of rowsToDelete) {
-    const firstOccurrence = data.find((row: any) => row.id === rowId);
-    await supabaseClient.from(tableName).delete().match({ id: rowId });
-    await supabaseClient.from(tableName).insert(firstOccurrence);
-  }
+  await supabaseClient.from(tableName).delete().neq("id", -1);
+  await supabaseClient.from(tableName).insert(firstOccurrences);
+
+  console.log(data.length, uniqueIds.size, data.length - uniqueIds.size);
 }
