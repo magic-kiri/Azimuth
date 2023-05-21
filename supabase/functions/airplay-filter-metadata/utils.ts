@@ -1,5 +1,5 @@
 import { Music, ReqBodyType, Artists } from "./types.ts";
-import { fetchRecords } from "./dbCall.ts";
+import { fetchRecords, insertDiagnostic } from "./dbCall.ts";
 import { fetchArtist, updateArtists } from "./database-functions/ranklist.ts";
 
 const TIME_LIMIT = 1000 * 60 * 30;
@@ -36,6 +36,20 @@ const matchName = (artistNames: string[], prevArtists: string) => {
   return !!artistNames.find((name) => prevArtists.includes(name));
 };
 
+// This is a diagnostic function
+const isInvalid = (artists: any) => {
+  if (!artists) return true;
+  if (!Array.isArray(artists)) return true;
+  if (artists.length === 0) return true;
+  if (
+    artists.findIndex(
+      (name) => typeof name !== "string" || name.length === 0
+    ) !== -1
+  )
+    return true;
+  return false;
+};
+
 export const isDupe = async (
   supabase: any,
   params: any,
@@ -56,11 +70,17 @@ export const isDupe = async (
   const { data, error } = await fetchRecords(fetchParams);
   let timeDifference = 0;
 
-  const matched = requestedSongs.find(({ title, acrid, artists }) => {
+  const matched = requestedSongs.find((song: any) => {
+    const { title, acrid, artists } = song;
     if (timeDifference > TIME_LIMIT) return false;
     const newDate = new Date(timestamp.slice(1, -1)).getTime();
 
     const artistNames = parseArtistNames(artists);
+
+    if (isInvalid(artistNames)) {
+      // console.log({song});
+      insertDiagnostic(JSON.stringify(song));
+    }
 
     const found = data.find((prevMusic: any) => {
       const prevDate = new Date(prevMusic.timestamp).getTime();
