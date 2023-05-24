@@ -27,7 +27,7 @@ serve(async (_req) => {
     const snippet: ReqBodyType = await _req.json();
     const params = parseParams(_req.url);
     const music = snippet.metadata?.music;
-
+    
     const dupe = await isDupe(supabase, params, music);
 
     const insertionParams = {
@@ -56,7 +56,8 @@ serve(async (_req) => {
         params.market,
         params.country,
         params.timestamp,
-        insertionParams.music[0].artists
+        insertionParams.music[0].artists,
+        insertionParams.music[0].title
       );
 
       await deleteRecords(supabase, {

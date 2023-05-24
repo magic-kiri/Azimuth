@@ -106,11 +106,16 @@ export const updateRankList = async (
   market: string,
   country: string,
   timestamp: string,
-  artists: string[]
+  artists: string[],
+  song: string
 ) => {
   const artistMap = await fetchArtist({ supabase, market, country, artists });
   artists.forEach((artist) => {
     if (artistMap[artist]) {
+      if (
+        !artistMap[artist].songs.find((songName: string) => songName === song)
+      )
+        artistMap[artist].songs.push(song);
       artistMap[artist].spinCount = artistMap[artist].spinCount + 1;
     } else {
       artistMap[artist] = {
@@ -118,6 +123,7 @@ export const updateRankList = async (
         country,
         artist,
         spinCount: 1,
+        songs: [song],
         timestamp: new Date(timestamp.slice(1, -1)),
       };
     }
