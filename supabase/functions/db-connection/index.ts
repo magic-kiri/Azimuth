@@ -8,19 +8,27 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 console.log("Hello from Functions!");
 
 serve(async (req) => {
-  const supabase = createClient(
-    "https://gtjpquxczkowyjucrmdu.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0anBxdXhjemtvd3lqdWNybWR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzY5ODMwMTcsImV4cCI6MTk5MjU1OTAxN30.CzTrEw6bNJ4rhtUNj9frD7LNEAAD6B7gIWQENdaERxg"
-  );
+  try {
+    const supabase = createClient(
+      Deno.env.get("PROJECT_URL")!,
+      Deno.env.get("ANON_KEY")!
+    );
+    // await supabase
+    //   .from("test_cron_kiriti")
+    //   .insert({ value: 10, songs: ["A", "B"] });
+    const { data } = await supabase.from("test_cron_kiriti").select();
 
-  // await supabase
-  //   .from("test_cron_kiriti")
-  //   .insert({ value: 10, songs: ["A", "B"] });
-  const { data } = await supabase.from("test_cron_kiriti").select();
-
-  return new Response(JSON.stringify({ status: "OK", data }), {
-    headers: { "Content-Type": "application/json" },
-  });
+    return new Response(JSON.stringify({ status: "OK", data }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ status: "OK", url: Deno.env.get("PROJECT_URL")!, err }),
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
 });
 
 // To invoke:
