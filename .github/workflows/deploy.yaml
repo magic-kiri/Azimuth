@@ -21,5 +21,5 @@ jobs:
         with:
           version: 1.0.0
 
-      - run: supabase functions deploy db-connection --project-ref $PROJECT_ID
+      - run: supabase functions deploy airplay-filter-metadata --project-ref $PROJECT_ID
 

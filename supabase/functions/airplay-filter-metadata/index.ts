@@ -1,8 +1,6 @@
 // import * as postgres from "postgres";
-import { serve } from "std/server";
-
-// import { createClient } from "@supabase/supabase-js";
-import { createClient } from "supabase";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
 import { Music, ReqBodyType } from "./types.ts";
 import { fetchRecords, insertRecords, deleteRecords } from "./dbCall.ts";
 import {

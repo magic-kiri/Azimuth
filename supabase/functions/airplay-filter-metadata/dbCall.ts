@@ -1,4 +1,5 @@
-import { createClient } from "supabase";
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
 export const fetchRecords = async ({
   supabase,
   market,
