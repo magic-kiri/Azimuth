@@ -8,7 +8,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 console.log("Hello from Functions!");
 async function doTask(supabaseClient: any) {
   try {
-    const {data} = await supabaseClient.from("test_cron_kiriti").select("*");
+    const { data } = await supabaseClient.from("test_cron_kiriti").select("*");
     // console.log(res);
     if (data) {
       await supabaseClient
@@ -30,8 +30,8 @@ serve(async (req) => {
   const startTime = new Date().getTime();
 
   const supabase = createClient(
-    "https://gtjpquxczkowyjucrmdu.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0anBxdXhjemtvd3lqdWNybWR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzY5ODMwMTcsImV4cCI6MTk5MjU1OTAxN30.CzTrEw6bNJ4rhtUNj9frD7LNEAAD6B7gIWQENdaERxg"
+    Deno.env.get("PROJECT_URL")!,
+    Deno.env.get("ANON_KEY")!
   );
   const res = await doTask(supabase);
   console.log(res);

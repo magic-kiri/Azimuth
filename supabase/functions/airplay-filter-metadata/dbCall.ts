@@ -60,10 +60,8 @@ export const deleteRecords = async (
 
 export const insertDiagnostic = async (metadata: string) => {
   const supabase = createClient(
-    // Deno.env.get("PROJECT_URL")!,
-    // Deno.env.get("ANON_KEY")!
-    "https://gtjpquxczkowyjucrmdu.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0anBxdXhjemtvd3lqdWNybWR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzY5ODMwMTcsImV4cCI6MTk5MjU1OTAxN30.CzTrEw6bNJ4rhtUNj9frD7LNEAAD6B7gIWQENdaERxg"
+    Deno.env.get("PROJECT_URL")!,
+    Deno.env.get("ANON_KEY")!
   );
   const { data, error } = await supabase
     .from("device_raw_airplay_diagnostic")

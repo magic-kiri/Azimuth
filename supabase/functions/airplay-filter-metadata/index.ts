@@ -17,17 +17,15 @@ import {
 serve(async (_req) => {
   try {
     const supabase = createClient(
-      // Deno.env.get("PROJECT_URL")!,
-      // Deno.env.get("ANON_KEY")!
-      "https://gtjpquxczkowyjucrmdu.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0anBxdXhjemtvd3lqdWNybWR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzY5ODMwMTcsImV4cCI6MTk5MjU1OTAxN30.CzTrEw6bNJ4rhtUNj9frD7LNEAAD6B7gIWQENdaERxg"
+      Deno.env.get("PROJECT_URL")!,
+      Deno.env.get("ANON_KEY")!
     );
 
     const method = _req.method;
     const snippet: ReqBodyType = await _req.json();
     const params = parseParams(_req.url);
     const music = snippet.metadata?.music;
-    
+
     const dupe = await isDupe(supabase, params, music);
 
     const insertionParams = {
@@ -47,7 +45,7 @@ serve(async (_req) => {
     if (!dupe) {
       const data = await insertRecords(
         insertionParams,
-        "device_raw_airplay_kiriti",
+        "device_raw_airplay",
         true
       );
 
