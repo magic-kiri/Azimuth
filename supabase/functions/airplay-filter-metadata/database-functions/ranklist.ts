@@ -24,8 +24,8 @@ export const updateArtists = (supabase: any, artistMap: Record<any, any>) => {
   Object.keys(artistMap).forEach((artist) => {
     const artistInfo = artistMap[artist];
     if (artistInfo.spinCount === 1) {
-      supabase.from("market_spins").insert(artistInfo).select();
-      // .then(({ data }: any) => console.log(artistInfo, { data }));
+      supabase.from("market_spins").insert(artistInfo).select()
+      .then(({ data }: any) => console.log(artistInfo.artist, { data }));
     } else {
       supabase
         .from("market_spins")
@@ -33,8 +33,8 @@ export const updateArtists = (supabase: any, artistMap: Record<any, any>) => {
         .eq("market", artistInfo.market)
         .eq("country", artistInfo.country)
         .eq("artist", artistInfo.artist)
-        .select();
-      // .then(({ data }: any) => console.log(artistInfo.artist, { data }));
+        .select()
+      .then(({ data }: any) => console.log(artistInfo.artist, { data }));
     }
   });
 };

@@ -101,10 +101,15 @@ export const isDupe = async (
   return !!matched;
 };
 
+const isSameSong = (song1: string, song2: string) => {
+  return song1 === song2;
+};
+
 export const updateRankList = async (
   supabase: any,
   market: string,
   country: string,
+  station: string,
   timestamp: string,
   artists: string[],
   song: string
@@ -113,9 +118,16 @@ export const updateRankList = async (
   artists.forEach((artist) => {
     if (artistMap[artist]) {
       if (
-        !artistMap[artist].songs.find((songName: string) => songName === song)
-      )
+        !artistMap[artist].songs.find((songName: string) =>
+          isSameSong(songName, song)
+        )
+      ) {
         artistMap[artist].songs.push(song);
+      }
+      if (!artistMap[artist].stations.find((s: string) => s === station)) {
+        artistMap[artist].stations.push(station);
+      }
+
       artistMap[artist].spinCount = artistMap[artist].spinCount + 1;
     } else {
       artistMap[artist] = {
@@ -124,6 +136,7 @@ export const updateRankList = async (
         artist,
         spinCount: 1,
         songs: [song],
+        stations: [station],
         timestamp: new Date(timestamp.slice(1, -1)),
       };
     }

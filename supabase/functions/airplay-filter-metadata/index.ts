@@ -51,9 +51,10 @@ serve(async (_req) => {
         supabase,
         params.market,
         params.country,
+        params.station,
         params.timestamp,
         insertionParams.music[0].artists,
-        insertionParams.music[0].title
+        insertionParams.music[0].title,
       );
 
       await deleteRecords(supabase, {
