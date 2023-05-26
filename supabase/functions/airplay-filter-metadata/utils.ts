@@ -101,8 +101,17 @@ export const isDupe = async (
   return !!matched;
 };
 
+const filterSong = (song: string) => {
+  const regex = /\([^\(\)]*\)/g;
+  let s = song;
+  while (s.search(regex) !== -1) {
+    s = s.replace(regex, "");
+  }
+  return s.replace(/\s/g, "");
+};
+
 const isSameSong = (song1: string, song2: string) => {
-  return song1 === song2;
+  return filterSong(song1) === filterSong(song2);
 };
 
 export const updateRankList = async (
@@ -127,7 +136,6 @@ export const updateRankList = async (
       if (!artistMap[artist].stations.find((s: string) => s === station)) {
         artistMap[artist].stations.push(station);
       }
-
       artistMap[artist].spinCount = artistMap[artist].spinCount + 1;
     } else {
       artistMap[artist] = {

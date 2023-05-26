@@ -54,7 +54,7 @@ serve(async (_req) => {
         params.station,
         params.timestamp,
         insertionParams.music[0].artists,
-        insertionParams.music[0].title,
+        insertionParams.music[0].title
       );
 
       await deleteRecords(supabase, {
