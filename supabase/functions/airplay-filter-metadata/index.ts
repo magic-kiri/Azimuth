@@ -13,6 +13,7 @@ import {
 // Create a single supabase client for interacting with your database
 
 serve(async (_req) => {
+  const startTime = new Date().getTime();
   try {
     const supabase = createClient(
       Deno.env.get("PROJECT_URL")!,
@@ -90,5 +91,8 @@ serve(async (_req) => {
     return new Response(String("My error:" + err?.message ?? err), {
       status: 500,
     });
+  } finally {
+    const executionTime = (new Date().getTime() - startTime) / 1000;
+    console.log(`Execution Time: ${executionTime}s.`);
   }
 });
