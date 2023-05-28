@@ -1,6 +1,8 @@
-import { Music, ReqBodyType, Artists } from "./types.ts";
+import { Music } from "./types.ts";
 import { fetchRecords, insertDiagnostic } from "./dbCall.ts";
 import { fetchArtist, updateArtists } from "./database-functions/ranklist.ts";
+import { isInvalid, matchName, parseArtistNames } from "./lib/artist.ts";
+import { filterSong, isSameSong, insertSong } from "./lib/song.ts";
 
 const TIME_LIMIT = 1000 * 60 * 30;
 
@@ -12,42 +14,6 @@ export const parseParams = (url: string) => {
     po[p[0]] = p[1];
   }
   return po;
-};
-
-export const parseArtistNames = (artists: Artists) => {
-  const names = artists.filter(({ roles, role }) => {
-    if (role && role === "MainArtist") {
-      return true;
-    } else if (roles) {
-      const found = roles.find((role) => role === "MainArtist");
-      return !!found;
-    }
-    return false;
-  });
-
-  if (names.length === 0) {
-    return artists.map((artist) => artist.name);
-  }
-
-  return names.map((artist) => artist.name);
-};
-
-const matchName = (artistNames: string[], prevArtists: string) => {
-  return !!artistNames.find((name) => prevArtists.includes(name));
-};
-
-// This is a diagnostic function
-const isInvalid = (artists: any) => {
-  if (!artists) return true;
-  if (!Array.isArray(artists)) return true;
-  if (artists.length === 0) return true;
-  if (
-    artists.findIndex(
-      (name) => typeof name !== "string" || name.length === 0
-    ) !== -1
-  )
-    return true;
-  return false;
 };
 
 export const isDupe = async (
@@ -101,19 +67,6 @@ export const isDupe = async (
   return !!matched;
 };
 
-const filterSong = (song: string) => {
-  const regex = /\([^\(\)]*\)/g;
-  let s = song;
-  while (s.search(regex) !== -1) {
-    s = s.replace(regex, "");
-  }
-  return s.replace(/\s/g, "");
-};
-
-const isSameSong = (song1: string, song2: string) => {
-  return filterSong(song1) === filterSong(song2);
-};
-
 export const updateRankList = async (
   supabase: any,
   market: string,
@@ -126,13 +79,7 @@ export const updateRankList = async (
   const artistMap = await fetchArtist({ supabase, market, country, artists });
   artists.forEach((artist) => {
     if (artistMap[artist]) {
-      if (
-        !artistMap[artist].songs.find((songName: string) =>
-          isSameSong(songName, song)
-        )
-      ) {
-        artistMap[artist].songs.push(song);
-      }
+      insertSong(artistMap[artist].songs, song);
       if (!artistMap[artist].stations.find((s: string) => s === station)) {
         artistMap[artist].stations.push(station);
       }
@@ -143,7 +90,7 @@ export const updateRankList = async (
         country,
         artist,
         spinCount: 1,
-        songs: [song],
+        songs: [{ title: song, count: 1 }],
         stations: [station],
         timestamp: new Date(timestamp.slice(1, -1)),
       };

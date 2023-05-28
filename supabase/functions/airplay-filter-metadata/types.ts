@@ -33,3 +33,8 @@ export type ReqBodyType = {
   };
   result_type?: number;
 };
+
+export type SongCountType = {
+  title: string;
+  count: number;
+};

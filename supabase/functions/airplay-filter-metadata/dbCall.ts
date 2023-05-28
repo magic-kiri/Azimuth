@@ -59,6 +59,7 @@ export const deleteRecords = async (
   return data;
 };
 
+// This is an diagnostic call for Invalid Artist Name.
 export const insertDiagnostic = async (metadata: string) => {
   const supabase = createClient(
     Deno.env.get("PROJECT_URL")!,

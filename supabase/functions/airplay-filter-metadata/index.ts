@@ -3,10 +3,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js";
 import { Music, ReqBodyType } from "./types.ts";
 import { fetchRecords, insertRecords, deleteRecords } from "./dbCall.ts";
+import { parseArtistNames } from "./lib/artist.ts";
 import {
   parseParams,
   isDupe,
-  parseArtistNames,
   updateRankList,
 } from "./utils.ts";
 
